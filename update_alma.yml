@@ -1,0 +1,22 @@
+---
+- name: Update AlmaLinux System
+  hosts: webservers  # This should match your inventory group or individual host
+  become: true  # Use privilege escalation to run as root
+  tasks:
+    - name: Ensure the system is updated
+      dnf:
+        name: '*'
+        state: latest
+
+    - name: Clean up unnecessary packages
+      dnf:
+        autoremove: yes
+        state: absent
+
+    - name: Reboot the system if required
+      reboot:
+        msg: "System reboot initiated after updates"
+        connect_timeout: 5
+        reboot_timeout: 600
+        test_command: uptime
+      when: ansible_facts['pkg_mgr'] == 'dnf'  # Only reboot if DNF is used
